@@ -5,7 +5,7 @@ mod player;
 mod bullet;
 mod enemy;
 
-use macroquad::prelude::*;
+use macroquad::{prelude::*, audio::{load_sound_from_bytes}};
 use logic::game_logic;
 use player::*;
 use bullet::*;
@@ -48,14 +48,25 @@ async fn main() {
         include_bytes!("../assets/enemy.png"),
         None
     );
+    let audio_gameover = load_sound_from_bytes(include_bytes!("../assets/gameover.wav")).await.unwrap();
+    let audio_laser = load_sound_from_bytes(include_bytes!("../assets/cannon.wav")).await.unwrap();
+    let audio_explosion = load_sound_from_bytes(include_bytes!("../assets/explosion.wav")).await.unwrap();
     loop {
         if player.gameover {
             clear_background(BLACK);
             draw_text("GAME OVER", Conf::default().window_width as f32 - 600.0, Conf::default().window_height as f32 / 2.0 + 25.0, 100.0, LIME);
             draw_text(&format!("Score: {}", score), Conf::default().window_width as f32 / 2.0 - 45.0, Conf::default().window_height as f32 / 2.0 + 80.0, 25.0, YELLOW);
+            if is_key_pressed(KeyCode::R) {
+                player.x = Conf::default().window_width as f32 / 2.0 - 60.0 / 2.0;
+                player.y = Conf::default().window_height as f32 - 80.0;
+                enemy_vec = vec![];
+                bullet_vec = vec![];
+                score = 0;
+                player.gameover = false;
+            }
         }
         else {
-            game_logic(&mut player, &mut bullet_vec, &mut enemy_vec, &mut enemy_count, &mut score, &texture_bg, &texture_player, &texture_enemy);
+            game_logic(&mut player, &mut bullet_vec, &mut enemy_vec, &mut enemy_count, &mut score, &texture_bg, &texture_player, &texture_enemy, &audio_laser, &audio_explosion, &audio_gameover);
         }
         next_frame().await
     }
