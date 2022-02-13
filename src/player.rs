@@ -6,6 +6,7 @@ pub struct Player {
     pub w: f32,
     pub speed: f32,
     pub color: Color,
+    pub gameover: bool,
 }
 
 impl Player {
